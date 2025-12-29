@@ -2,17 +2,15 @@
 #include "stdlib/rl_io.hpp"
 #include <string>
 
-int get_boost(int base) {
-    return base*2;
-}
-
 
 int main() {
-    const std::string ship_name = "Redline-One";
-    int velocity = 100;
-    const int boost = get_boost(velocity);
-    rl::print(ship_name);
-    rl::print("Velocity with boost:");
-    rl::print(boost);
+    const int speed = 50;
+    if (speed > 100) {
+    rl::print("Warning: Too Fast!");
+    } else {
+    rl::print("Speed is safe.");
+    const std::string weather = "Rainy";
+    rl::print("Status check complete.");
+    }
     return 0;
 }
