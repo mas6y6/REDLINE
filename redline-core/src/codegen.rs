@@ -31,7 +31,7 @@ fn generate_expression(expr: &Expression) -> Result<String, CodegenError> {
             let right_str = generate_expression(right)?;
             Ok(format!("({} {} {})", left_str, op.to_string(), right_str))
         },
-        _ => Err(CodegenError { message: format!("Unsupported expression for codegen: {:?}", expr) }),
+        // _ => Err(CodegenError { message: format!("Unsupported expression for codegen: {:?}", expr) }),
     }
 }
 
@@ -83,7 +83,7 @@ fn generate_block(statements: &[Statement], indent_level: usize) -> Result<Strin
                     }
                 }
             },
-            _ => return Err(CodegenError { message: format!("Unsupported statement for codegen: {:?}", statement) }),
+            // _ => return Err(CodegenError { message: format!("Unsupported statement for codegen: {:?}", statement) }),
         }
     }
     Ok(block_code)
@@ -131,7 +131,9 @@ pub fn generate(program: &Program) -> Result<String, CodegenError> {
     }
 
     // 3. Generate Main Body
-    main_body.push_str(&generate_block(&main_statements, 1)?);
+    // Fix: Dereference the references in the vector to get a slice of Statements
+    let main_statements_owned: Vec<Statement> = main_statements.into_iter().cloned().collect();
+    main_body.push_str(&generate_block(&main_statements_owned, 1)?);
 
     cpp_code.push_str(&includes);
     cpp_code.push_str(&global_code);
