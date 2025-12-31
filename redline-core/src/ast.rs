@@ -1,7 +1,7 @@
 #[derive(Debug, PartialEq, Clone)]
 pub enum Type {
     Int,
-    Float, // Although not yet fully supported, it's in the docs.
+    Float,
     String,
 }
 
@@ -9,7 +9,7 @@ impl ToString for Type {
     fn to_string(&self) -> String {
         match self {
             Type::Int => "int".to_string(),
-            Type::Float => "float".to_string(),
+            Type::Float => "double".to_string(), // Mapped to double for better precision and compatibility with rl_math
             Type::String => "std::string".to_string(),
         }
     }
@@ -18,8 +18,8 @@ impl ToString for Type {
 #[derive(Debug, PartialEq, Clone)]
 pub enum Literal {
     Int(i64),
+    Float(f64),
     String(String),
-    // Float(f64), // For future support
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -62,7 +62,7 @@ pub enum Expression {
         left: Box<Expression>,
         right: Box<Expression>,
     },
-    // Call(String, Vec<Expression>), // For future function calls
+    Call(String, Vec<Expression>),
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -79,8 +79,13 @@ pub enum Statement {
         alternative: Option<Vec<Statement>>, // 'else' block
     },
     Print(Expression),
-    // FunctionDefinition { ... }, // For future
-    // Return(Expression), // For future
+    FunctionDefinition {
+        name: String,
+        params: Vec<(String, Type)>, // (name, type)
+        return_type: Type,
+        body: Vec<Statement>,
+    },
+    Return(Option<Expression>),
 }
 
 #[derive(Debug, PartialEq, Clone)]

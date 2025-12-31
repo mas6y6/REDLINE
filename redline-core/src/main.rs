@@ -8,8 +8,7 @@ mod parser;
 mod ast;
 
 use lexer::{Lexer};
-use parser::{Parser, ParserError};
-use ast::{Program};
+use parser::{Parser};
 
 use codegen::generate;
 
@@ -54,4 +53,3 @@ fn main() {
         }
     }
 }
-
