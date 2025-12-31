@@ -18,6 +18,14 @@ fn generate_expression(expr: &Expression) -> Result<String, CodegenError> {
         Expression::Literal(Literal::Int(n)) => Ok(n.to_string()),
         Expression::Literal(Literal::Float(n)) => Ok(n.to_string()),
         Expression::Literal(Literal::String(s)) => Ok(format!("\"{}\"", s)),
+        Expression::Literal(Literal::Bool(b)) => Ok(if *b { "true".to_string() } else { "false".to_string() }),
+        Expression::Input(prompt) => {
+            if let Some(p) = prompt {
+                Ok(format!("rl::input(\"{}\")", p))
+            } else {
+                Ok("rl::input()".to_string())
+            }
+        },
         Expression::Identifier(name) => Ok(name.clone()),
         Expression::Call(name, args) => {
             let args_str: Result<Vec<String>, CodegenError> = args.iter()
@@ -48,6 +56,10 @@ fn generate_block(statements: &[Statement], indent_level: usize) -> Result<Strin
                 let initial_value = generate_expression(initializer)?;
                 block_code.push_str(&format!("{}{}{} {} = {};\n", indent, prefix, cpp_type, name, initial_value));
             },
+            Statement::Assignment { name, value } => {
+                let value_str = generate_expression(value)?;
+                block_code.push_str(&format!("{}{} = {};\n", indent, name, value_str));
+            },
             Statement::If { condition, consequence, alternative } => {
                 let cond_str = generate_expression(condition)?;
                 block_code.push_str(&format!("{}if ({}) {{\n", indent, cond_str));
@@ -60,9 +72,29 @@ fn generate_block(statements: &[Statement], indent_level: usize) -> Result<Strin
                     block_code.push_str(&format!("{}}}\n", indent));
                 }
             },
+            Statement::While { condition, body } => {
+                let cond_str = generate_expression(condition)?;
+                block_code.push_str(&format!("{}while ({}) {{\n", indent, cond_str));
+                block_code.push_str(&generate_block(body, indent_level + 1)?);
+                block_code.push_str(&format!("{}}}\n", indent));
+            },
+            Statement::For { iterator, start, end, body } => {
+                let start_str = generate_expression(start)?;
+                let end_str = generate_expression(end)?;
+                // Generate a standard C++ for loop: for (int i = start; i < end; ++i)
+                // Note: We assume the iterator is an int for now.
+                block_code.push_str(&format!("{}for (int {} = {}; {} < {}; ++{}) {{\n",
+                    indent, iterator, start_str, iterator, end_str, iterator));
+                block_code.push_str(&generate_block(body, indent_level + 1)?);
+                block_code.push_str(&format!("{}}}\n", indent));
+            },
             Statement::Print(expr) => {
                 let arg_str = generate_expression(expr)?;
                 block_code.push_str(&format!("{}rl::print({});\n", indent, arg_str));
+            },
+            Statement::Expression(expr) => {
+                let expr_str = generate_expression(expr)?;
+                block_code.push_str(&format!("{}{};\n", indent, expr_str));
             },
             Statement::FunctionDefinition { name, params, return_type, body } => {
                 let param_str: Vec<String> = params.iter()

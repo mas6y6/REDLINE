@@ -3,6 +3,7 @@ pub enum Type {
     Int,
     Float,
     String,
+    Bool,
 }
 
 impl ToString for Type {
@@ -11,6 +12,7 @@ impl ToString for Type {
             Type::Int => "int".to_string(),
             Type::Float => "double".to_string(), // Mapped to double for better precision and compatibility with rl_math
             Type::String => "std::string".to_string(),
+            Type::Bool => "bool".to_string(),
         }
     }
 }
@@ -20,6 +22,7 @@ pub enum Literal {
     Int(i64),
     Float(f64),
     String(String),
+    Bool(bool),
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -63,6 +66,7 @@ pub enum Expression {
         right: Box<Expression>,
     },
     Call(String, Vec<Expression>),
+    Input(Option<String>), // Input can optionally take a prompt string
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -73,12 +77,27 @@ pub enum Statement {
         data_type: Type,
         initializer: Expression,
     },
+    Assignment {
+        name: String,
+        value: Expression,
+    },
     If {
         condition: Expression,
         consequence: Vec<Statement>, // 'then' block
         alternative: Option<Vec<Statement>>, // 'else' block
     },
+    While {
+        condition: Expression,
+        body: Vec<Statement>,
+    },
+    For {
+        iterator: String,
+        start: Expression,
+        end: Expression,
+        body: Vec<Statement>,
+    },
     Print(Expression),
+    Expression(Expression), // For standalone function calls
     FunctionDefinition {
         name: String,
         params: Vec<(String, Type)>, // (name, type)

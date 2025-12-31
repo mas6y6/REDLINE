@@ -2,9 +2,9 @@ use std::fmt;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Token {
-    Var, Val, Def, Pub, Print, Return, If, Else,
+    Var, Val, Def, Pub, Print, Input, Return, If, Else, True, False, While, For, In,
     Ident(String), Int(i64), Float(f64), Str(String), Type(String),
-    Op(String), Arrow, Colon, Assign, LParen, RParen, Comma, Newline,
+    Op(String), Arrow, Colon, Assign, LParen, RParen, Comma, Newline, Range,
     Indent, Dedent,
 }
 
@@ -145,6 +145,24 @@ impl Lexer {
                     tokens.push(Token::Comma);
                     self.advance();
                 }
+                '.' => {
+                    if self.pos + 1 < self.input.len() && self.input[self.pos + 1] == '.' {
+                        tokens.push(Token::Range);
+                        self.advance();
+                        self.advance();
+                    } else {
+                         // This case should ideally be handled by numeric parsing if it's part of a float,
+                         // but here we might catch a standalone dot if not handled elsewhere.
+                         // For now, let's assume it's an error or part of float logic handled above.
+                         // Actually, the numeric parser handles leading dots for floats.
+                         // If we get here, it's a dot that is NOT part of a number (e.g. method call syntax in future).
+                         return Err(LexerError {
+                            message: format!("Unexpected character: ."),
+                            line: self.line,
+                            column: self.column,
+                        });
+                    }
+                }
                 '>' | '<' | '!' => {
                     let next = self.input.get(self.pos + 1);
                     if next == Some(&'=') {
@@ -227,7 +245,13 @@ impl Lexer {
                         "pub" => tokens.push(Token::Pub),
                         "return" => tokens.push(Token::Return),
                         "print" => tokens.push(Token::Print),
-                        "int" | "float" | "string" => tokens.push(Token::Type(ident)),
+                        "input" => tokens.push(Token::Input),
+                        "true" => tokens.push(Token::True),
+                        "false" => tokens.push(Token::False),
+                        "while" => tokens.push(Token::While),
+                        "for" => tokens.push(Token::For),
+                        "in" => tokens.push(Token::In),
+                        "int" | "float" | "string" | "bool" => tokens.push(Token::Type(ident)),
                         _ => tokens.push(Token::Ident(ident)),
                     }
                 }
@@ -236,6 +260,13 @@ impl Lexer {
                     let mut is_float = false;
 
                     if c == '.' {
+                        // Check if it's a range operator ".."
+                        if self.pos + 1 < self.input.len() && self.input[self.pos + 1] == '.' {
+                             tokens.push(Token::Range);
+                             self.advance();
+                             self.advance();
+                             continue;
+                        }
                         is_float = true;
                         num.push('0');
                         num.push('.');
@@ -244,6 +275,11 @@ impl Lexer {
 
                     while self.pos < self.input.len() && (self.input[self.pos].is_numeric() || self.input[self.pos] == '.') {
                         if self.input[self.pos] == '.' {
+                            // Check if it's a range operator ".." immediately following a number (e.g. 1..10)
+                            if self.pos + 1 < self.input.len() && self.input[self.pos + 1] == '.' {
+                                break; // Stop parsing number, let the next iteration catch the ".."
+                            }
+
                             if is_float {
                                 return Err(LexerError {
                                     message: format!("Invalid number: multiple decimal points"),

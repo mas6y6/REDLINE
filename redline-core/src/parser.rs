@@ -53,6 +53,7 @@ impl<'a> Parser<'a> {
                 "int" => Type::Int,
                 "float" => Type::Float,
                 "string" => Type::String,
+                "bool" => Type::Bool,
                 _ => return Err(ParserError { message: format!("Unknown type: {}", ty_str) }),
             };
             self.advance();
@@ -80,6 +81,29 @@ impl<'a> Parser<'a> {
                     let val = Expression::Literal(Literal::String(s.clone()));
                     self.advance();
                     Ok(val)
+                },
+                Token::True => {
+                    let val = Expression::Literal(Literal::Bool(true));
+                    self.advance();
+                    Ok(val)
+                },
+                Token::False => {
+                    let val = Expression::Literal(Literal::Bool(false));
+                    self.advance();
+                    Ok(val)
+                },
+                Token::Input => {
+                    self.advance(); // Consume 'input'
+                    self.expect(&Token::LParen, "Expected '(' after 'input'")?;
+
+                    let mut prompt = None;
+                    if let Some(Token::Str(s)) = self.current_token() {
+                        prompt = Some(s.clone());
+                        self.advance();
+                    }
+
+                    self.expect(&Token::RParen, "Expected ')' after input arguments")?;
+                    Ok(Expression::Input(prompt))
                 },
                 Token::Ident(name) => {
                     let name = name.clone();
@@ -328,6 +352,45 @@ impl<'a> Parser<'a> {
         Ok(Statement::If { condition, consequence, alternative })
     }
 
+    fn parse_while_statement(&mut self) -> Result<Statement, ParserError> {
+        self.expect(&Token::While, "Expected 'while'")?; // Consume 'while'
+
+        let condition = self.parse_expression()?; // Parse condition
+
+        self.expect(&Token::Colon, "Expected ':' after while condition")?; // Consume ':'
+        self.expect(&Token::Newline, "Expected newline after while colon")?;
+
+        let body = self.parse_block()?; // Parse loop body
+
+        Ok(Statement::While { condition, body })
+    }
+
+    fn parse_for_statement(&mut self) -> Result<Statement, ParserError> {
+        self.expect(&Token::For, "Expected 'for'")?; // Consume 'for'
+
+        let iterator = if let Some(Token::Ident(n)) = self.current_token() {
+            n.clone()
+        } else {
+            return Err(ParserError { message: format!("Expected iterator name after 'for', got {:?}", self.current_token()) });
+        };
+        self.advance(); // Consume iterator name
+
+        self.expect(&Token::In, "Expected 'in' after iterator")?; // Consume 'in'
+
+        let start = self.parse_expression()?; // Parse start expression
+
+        self.expect(&Token::Range, "Expected '..' range operator")?; // Consume '..'
+
+        let end = self.parse_expression()?; // Parse end expression
+
+        self.expect(&Token::Colon, "Expected ':' after range")?; // Consume ':'
+        self.expect(&Token::Newline, "Expected newline after for colon")?;
+
+        let body = self.parse_block()?; // Parse loop body
+
+        Ok(Statement::For { iterator, start, end, body })
+    }
+
     // Parses a block of statements. Assumes that current_token is the first token of the block.
     // Stops when it encounters a token that is not part of the block's logical flow (e.g., 'else' for 'if' blocks, or EOF)
     // For now, this is simplified and assumes indentation will be handled implicitly by token stream (e.g., Newline tokens)
@@ -362,9 +425,28 @@ impl<'a> Parser<'a> {
         match self.current_token() {
             Some(Token::Val) | Some(Token::Var) => self.parse_declaration(),
             Some(Token::If) => self.parse_if_statement(),
+            Some(Token::While) => self.parse_while_statement(),
+            Some(Token::For) => self.parse_for_statement(),
             Some(Token::Print) => self.parse_print_statement(),
             Some(Token::Def) => self.parse_function_definition(),
             Some(Token::Return) => self.parse_return_statement(),
+            Some(Token::Ident(name)) => {
+                // Could be assignment or expression statement (function call)
+                let name = name.clone();
+                match self.peek_token() {
+                    Some(Token::Assign) => {
+                        self.advance(); // Consume identifier
+                        self.advance(); // Consume '='
+                        let value = self.parse_expression()?;
+                        Ok(Statement::Assignment { name, value })
+                    },
+                    _ => {
+                        // Assume it's an expression statement (like a function call)
+                        let expr = self.parse_expression()?;
+                        Ok(Statement::Expression(expr))
+                    }
+                }
+            },
             // Other statements will be added here
             Some(token) => {
                 Err(ParserError { message: format!("Unexpected token at start of statement: {:?}", token) })

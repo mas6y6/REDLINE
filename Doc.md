@@ -1,4 +1,4 @@
-# 🟥 REDLINE v0.3 Documentation
+# 🟥 REDLINE v0.4 Documentation
 
 REDLINE is a high-performance, transpiled systems language designed to be as readable as Python but as fast as C++.
 
@@ -16,6 +16,7 @@ Syntax:
 val name: string = "Ace"
 var health: int = 100
 var pi: float = 3.14
+var is_active: bool = true
 ```
 
 ## 2. Data Types
@@ -25,6 +26,7 @@ REDLINE is strictly typed, meaning the compiler ensures you don't accidentally t
 *   `int`: Whole numbers (e.g., `10`, `-5`).
 *   `float`: Decimal numbers (e.g., `10.5`, `3.14`).
 *   `string`: Text wrapped in double quotes (e.g., `"Redline"`).
+*   `bool`: Logical values (`true` or `false`).
 
 ## 3. Functions
 
@@ -69,16 +71,71 @@ else:
     print("Cruising")
 ```
 
-## 5. Standard Output
+## 5. Loops
 
-The built-in `print` command handles communication with the console. It is powered by the `rl_io.hpp` library in your `stdlib` folder.
+REDLINE supports `while` and `for` loops for repeating actions.
 
+### While Loops
+Runs as long as the condition is true.
+```redline
+var i: int = 0
+while i < 5:
+    print(i)
+    i = i + 1
+```
+
+### For Loops
+Iterates over a range of numbers.
+```redline
+for i in 0..5:
+    print(i)
+```
+
+## 6. Input & Output
+
+The built-in `print` and `input` commands handle communication with the console.
+
+### Output
 ```redline
 print("System Initialized")
 print(42)
 ```
 
-## 6. The Compiler Pipeline
+### Input
+Takes user input as a string. You can optionally provide a prompt.
+```redline
+val name: string = input("Enter your name: ")
+print("Hello, " + name)
+```
+
+## 7. Examples
+
+Here are some complete examples of what you can build with REDLINE.
+
+### Fibonacci Sequence
+Calculates the Fibonacci sequence using recursion.
+```redline
+def fib(n: int) -> int:
+    if n <= 1:
+        return n
+    else:
+        return fib(n - 1) + fib(n - 2)
+
+for i in 0..10:
+    print(fib(i))
+```
+
+### User Interaction
+A simple program that asks for user input.
+```redline
+val name: string = input("What is your name? ")
+print("Welcome, " + name)
+
+val age_str: string = input("How old are you? ")
+print("You are " + age_str + " years old.")
+```
+
+## 8. The Compiler Pipeline
 
 Understanding how your code turns into a program helps with debugging.
 
@@ -90,7 +147,7 @@ Understanding how your code turns into a program helps with debugging.
 6.  **G++ Compiler**: Turns the C++ into machine code.
 7.  **Executable**: A lightning-fast file you can run directly.
 
-## 7. Error Handling
+## 9. Error Handling
 
 The REDLINE compiler attempts to provide helpful error messages when something goes wrong. If you make a syntax error, the compiler will report the error with the file, line, and column number to help you find the mistake quickly.
 
@@ -100,11 +157,12 @@ Lexer Error: Unknown character: @ at line 2, column 1
 Parser Error: Expected a primary expression, got Token::Int(42)
 ```
 
-## 8. Standard Library
+## 10. Standard Library
 
 ### rl_io.hpp
 Provides input/output functionality:
 - `print()`: Print values to stdout
+- `input()`: Read string from stdin
 
 ### rl_math.hpp
 Provides mathematical functions:
@@ -118,15 +176,15 @@ Provides mathematical functions:
 - `min()`, `max()`: Minimum and maximum
 - Constants: `PI`, `E`
 
-## 9. Future Keywords (Roadmap)
+## 11. Future Keywords (Roadmap)
 
 These are keywords reserved for our next updates:
 
-*   `while` / `for`: For loops.
-*   `input`: For taking user keyboard data.
 *   `import`: For loading other `.rl` files.
-*   `pub`: For making functions accessible globally.
+*   `pub`: For making functions accessible globally across files.
+*   `class` / `struct`: For object-oriented programming.
+*   `list` / `array`: For collections of data.
 
-## 10. Contributing
+## 12. Contributing
 
 This documentation is a work in progress. If you find any errors or want to improve it, please feel free to open an issue or pull request!
