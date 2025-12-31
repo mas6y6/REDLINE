@@ -1,0 +1,19 @@
+# --- REDLINE Executables ---
+# Matches the binaries created by G++
+logic_test
+unique_test
+output.cpp
+
+# --- Rust Build Files ---
+# Ignore the heavy target folder where Rust compiles the "Brain"
+redline-core/target/
+**/*.rs.bk
+
+# --- Python Cache ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- OS Specific ---
+.DS_Store
+Thumbs.db
