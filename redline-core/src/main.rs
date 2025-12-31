@@ -5,8 +5,11 @@ use std::process;
 mod codegen;
 mod lexer;
 mod parser;
+mod ast;
 
 use lexer::{Lexer};
+use parser::{Parser, ParserError};
+use ast::{Program};
 
 use codegen::generate;
 
@@ -33,7 +36,15 @@ fn main() {
         }
     };
 
-    match generate(&tokens) {
+    let program = match Parser::new(&tokens).parse() {
+        Ok(p) => p,
+        Err(e) => {
+            eprintln!("Parser Error: {}", e);
+            process::exit(1);
+        }
+    };
+
+    match generate(&program) {
         Ok(cpp_code) => {
             print!("{}", cpp_code);
         }
