@@ -50,7 +50,7 @@ pub fn generate(program: &Program, mode: GenMode, module_name: &str) -> Result<S
                 cpp_code.push_str(&generate_statement(stmt, 0, mode, None)?);
                 cpp_code.push_str("\n");
             }
-            Statement::Class { name, members } => {
+            Statement::Class { name, members, .. } => { // Added .. to ignore is_public
                 for member in members {
                     match member {
                         ClassMember::Method(method_stmt) => {
@@ -96,7 +96,7 @@ fn generate_hpp(program: &Program, module_name: &str) -> Result<String, CodegenE
     hpp_code.push_str("namespace rl {\n\n");
 
     for stmt in &program.statements {
-        if let Statement::Class { name, members } = stmt {
+        if let Statement::Class { name, members, .. } = stmt { // Added .. to ignore is_public
             hpp_code.push_str(&format!("class {} {{\n", name));
             hpp_code.push_str("public:\n"); // Simplified: all members are public for now
             for member in members {

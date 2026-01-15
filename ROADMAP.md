@@ -9,7 +9,7 @@ These are features planned for the next few releases.
 *   [x] **Module System (`import`)**: Allow REDLINE files to be split into modules and imported into other files.
 *   [x] **Public Visibility (`pub`)**: Add a `pub` keyword to make functions and constants accessible from other modules.
 *   [x] **Object-Oriented Programming (`class` / `struct`)**: Introduce basic data structures for grouping data and behavior.
-*   [ ] **C++ Interoperability**: Allow C++ projects to include and call functions from compiled REDLINE code. This would likely involve generating a C++ header file (`.hpp`) for a REDLINE module.
+*   [x] **C++ Interoperability**: Allow C++ projects to include and call functions from compiled REDLINE code. This would likely involve generating a C++ header file (`.hpp`) for a REDLINE module.
 
 ## Mid-Term Goals (v0.8 - v1.0)
 

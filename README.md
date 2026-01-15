@@ -8,9 +8,11 @@ REDLINE is a high-performance, transpiled systems programming language designed 
 
 *   **Python-like Syntax**: Clean, indentation-based structure. No semicolons or curly braces required.
 *   **C++ Performance**: Transpiles directly to C++, leveraging the full power of the G++ compiler.
-*   **Rich Type System**: Supports `int`, `float`, `string`, `bool`, and `list[T]`.
+*   **Object-Oriented**: Full support for classes, methods, and constructors.
+*   **Modular**: Organize your code with `import` and `pub`.
+*   **C++ Interop**: Easily use REDLINE code in your existing C++ projects.
+*   **Rich Type System**: Supports `int`, `float`, `string`, `bool`, `void`, and `list[T]`.
 *   **Modern Tooling**: Built-in Lexer, Parser, and Code Generator written in Rust for speed and safety.
-*   **Standard Library**: Includes fast I/O, math, and list manipulation functions out of the box.
 
 ## 📦 Installation
 
@@ -25,11 +27,9 @@ REDLINE is a high-performance, transpiled systems programming language designed 
     git clone https://github.com/yourusername/REDLINE.git
     cd REDLINE
     ```
-2.  Build the core compiler (Rust):
+2.  Initialize the compiler core:
     ```bash
-    cd redline-core
-    cargo build --release
-    cd ..
+    python redline.py init
     ```
 
 ## 🛠️ Usage
@@ -38,15 +38,59 @@ REDLINE is a high-performance, transpiled systems programming language designed 
 The easiest way to compile and run a REDLINE file is using the `redline.py` wrapper script.
 
 ```bash
-python redline.py <path_to_file.rl>
+python redline.py build <path_to_file.rl>
 ```
 
 **Example:**
 ```bash
-python redline.py examples/v0.5_tests/list_test.rl
+python redline.py build examples/v0.6_tests/class_test.rl
+```
+
+### C++ Interoperability (Auto-Discovery)
+You can write a C++ `main.cpp` that includes REDLINE headers, and the build script will automatically find and compile the dependencies.
+
+**main.cpp:**
+```cpp
+#include "my_lib.hpp" // Corresponds to my_lib.rl
+
+int main() {
+    rl::my_function();
+    return 0;
+}
+```
+
+**Build Command:**
+```bash
+python redline.py build main.cpp
+```
+The script will detect the `#include "my_lib.hpp"`, find `my_lib.rl`, compile it, and link everything together!
+
+### Building a Library Manually
+If you prefer manual control, you can compile a REDLINE module into a static library (`.o`) and header (`.hpp`).
+
+```bash
+python redline.py lib my_library.rl
 ```
 
 ## 📝 Example Code
+
+**Classes & Objects:**
+```redline
+class Person:
+    var name: string = ""
+    var age: int = 0
+
+    # Constructor
+    def init(n: string, a: int):
+        this.name = n
+        this.age = a
+
+    def greet():
+        print("Hello, I am " + this.name)
+
+var p: Person = Person("Alice", 30)
+p.greet()
+```
 
 **List Manipulation:**
 ```redline
@@ -62,18 +106,6 @@ my_list[1] = 99
 # Print the list
 for i in 0..len(my_list):
     print(my_list[i])
-```
-
-**Fibonacci Sequence:**
-```redline
-def fib(n: int) -> int:
-    if n <= 1:
-        return n
-    else:
-        return fib(n - 1) + fib(n - 2)
-
-for i in 0..10:
-    print(fib(i))
 ```
 
 ## 🗺️ Roadmap
