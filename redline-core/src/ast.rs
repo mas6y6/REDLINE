@@ -99,7 +99,7 @@ pub enum Statement {
     FunctionDefinition { is_public: bool, name: String, params: Vec<(String, Type)>, return_type: Type, body: Vec<Statement> },
     Return(Option<Expression>),
     /// A class definition.
-    Class { name: String, members: Vec<ClassMember> },
+    Class { is_public: bool, name: String, members: Vec<ClassMember> },
 }
 
 /// The root of the AST, representing the entire program as a list of statements.

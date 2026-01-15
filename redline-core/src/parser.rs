@@ -344,7 +344,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parse_class_statement(&mut self) -> Result<Statement, ParserError> {
+    fn parse_class_statement(&mut self, is_public: bool) -> Result<Statement, ParserError> {
         self.expect(TokenType::Class, "Expected 'class'")?;
         let name = if let TokenType::Ident(n) = &self.current_token().token_type { n.clone() }
             else { return Err(self.error("Expected class name".to_string())); };
@@ -352,7 +352,7 @@ impl<'a> Parser<'a> {
         self.expect(TokenType::Colon, "Expected ':' after class name")?;
         self.expect(TokenType::Newline, "Expected newline after class definition")?;
         let members = self.parse_class_block()?;
-        Ok(Statement::Class { name, members })
+        Ok(Statement::Class { is_public, name, members })
     }
 
     fn parse_statement(&mut self) -> Result<Statement, ParserError> {
@@ -360,7 +360,7 @@ impl<'a> Parser<'a> {
 
         match self.current_token().token_type {
             TokenType::Import => self.parse_import_statement(),
-            TokenType::Class => self.parse_class_statement(),
+            TokenType::Class => self.parse_class_statement(false),
             TokenType::Print => {
                 self.advance();
                 self.expect(TokenType::LParen, "Expected '(' after 'print'")?;
@@ -373,7 +373,8 @@ impl<'a> Parser<'a> {
                 match self.current_token().token_type {
                     TokenType::Val | TokenType::Var => self.parse_declaration(true),
                     TokenType::Def => self.parse_function_definition(true),
-                    _ => Err(self.error("Expected 'val', 'var', or 'def' after 'pub'".to_string())),
+                    TokenType::Class => self.parse_class_statement(true),
+                    _ => Err(self.error("Expected 'val', 'var', 'def', or 'class' after 'pub'".to_string())),
                 }
             },
             TokenType::Val | TokenType::Var => self.parse_declaration(false),
