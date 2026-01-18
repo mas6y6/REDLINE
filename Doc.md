@@ -1,4 +1,4 @@
-# 🟥 REDLINE v0.9 Documentation
+# 🟥 REDLINE v1.0.0 Documentation
 
 REDLINE is a high-performance, transpiled systems language designed to be as readable as Python but as fast as C++.
 
@@ -15,8 +15,6 @@ Syntax:
 ```redline
 val name: string = "Ace"
 var health: int = 100
-var pi: float = 3.14
-var is_active: bool = true
 ```
 
 ## 2. Data Types
@@ -29,34 +27,42 @@ REDLINE is strictly typed, meaning the compiler ensures you don't accidentally t
 *   `bool`: Logical values (`true` or `false`).
 *   `void`: Represents the absence of a value (used for function return types).
 *   `list[T]`: A dynamic array of elements of type `T`.
+*   `dict[K, V]`: A dictionary (hash map) with keys of type `K` and values of type `V`.
 
 ## 3. Functions
 
-Functions in REDLINE use a modern "Arrow" syntax to show what they return.
-
-Syntax:
-```redline
-def name(param: type) -> return_type:
-    # Logic here
-    return value
-```
-
-If a function does not return a value, the return type can be omitted (defaults to `void`).
+Functions in REDLINE use a modern "Arrow" syntax. If a function does not return a value, the return type can be omitted (defaults to `void`).
 
 ```redline
 def greet(name: string):
     print("Hello, " + name)
 ```
 
-## 4. Control Flow (Decision Making)
+### Function Overloading
+You can define multiple functions with the same name, as long as they have different parameter types. The compiler will choose the correct one based on the arguments you provide.
 
-REDLINE uses `if` and `else` for logic. It uses C-style comparison operators but Python-style structure.
+```redline
+def add(a: int, b: int) -> int:
+    return a + b
 
-Comparison Operators: `==`, `!=`, `>`, `<`, `>=`, `<=`
+def add(a: string, b: string) -> string:
+    return a + b
 
-## 5. Loops
+val r1: int = add(10, 20)
+val r2: string = add("Hello, ", "World!")
+```
 
-REDLINE supports `while` and `for` loops for repeating actions.
+## 4. Control Flow
+
+REDLINE uses `if`/`else` for logic and `while`/`for` for loops.
+
+### If/Else
+```redline
+if health <= 0:
+    print("Game Over")
+else:
+    print("Still kicking!")
+```
 
 ### While Loops
 ```redline
@@ -72,10 +78,84 @@ for i in 0..5:
     print(i)
 ```
 
-## 6. Error Handling
+### Loop Control
+You can control loop execution with `break` and `continue`.
+*   `continue`: Skips the rest of the current iteration and proceeds to the next one.
+*   `break`: Exits the loop entirely.
+
+```redline
+for i in 0..10:
+    if i == 2:
+        continue # Skip printing 2
+    if i == 5:
+        break # Stop the loop at 5
+    print(i)
+# Output: 0, 1, 3, 4
+```
+
+## 5. Data Structures
+
+### Lists
+A dynamic array of elements.
+```redline
+var my_list: list[int] = [10, 20, 30]
+val first: int = my_list[0]
+my_list[1] = 99
+append(my_list, 40)
+```
+
+### Dictionaries
+A collection of key-value pairs.
+```redline
+var scores: dict[string, int] = {
+    "Alice": 100,
+    "Bob": 85
+}
+val alice_score: int = scores["Alice"]
+scores["Bob"] = 90
+```
+
+## 6. Strings & F-Strings
+
+REDLINE supports standard string concatenation. For more complex formatting, you can use f-strings.
+
+```redline
+val name: string = "Redline"
+val version: float = 1.0
+
+# f-string interpolation
+val message: string = f"Welcome to {name} v{version}!"
+print(message) # Welcome to Redline v1.0!
+```
+
+## 7. Classes & Objects
+
+REDLINE supports Object-Oriented Programming (OOP) with classes and automatic memory management.
+
+### Defining a Class
+```redline
+class Person:
+    var name: string = ""
+    var age: int = 0
+
+    def init(n: string, a: int):
+        this.name = n
+        this.age = a
+
+    def greet():
+        print(f"Hello, I am {this.name}")
+```
+
+### Using a Class
+Use the `new` keyword to create an object instance on the heap. Memory is managed automatically.
+```redline
+var p: Person = new Person("Alice", 30)
+p.greet()
+```
+
+## 8. Error Handling
 
 REDLINE uses `try` and `catch` blocks to handle runtime errors.
-
 ```redline
 try:
     val content: string = read_file("missing.txt")
@@ -83,128 +163,54 @@ catch e:
     print("An error occurred!")
 ```
 
-## 7. Lists
+## 9. Modules & Projects
 
-REDLINE has a built-in `list` type, which is a dynamic array.
-
-### Declaration
+### Modules
+Split your code into multiple files using `import`. Use the `pub` keyword to make functions and classes accessible from other modules.
 ```redline
-var my_list: list[int] = [10, 20, 30]
+# utils.rl
+pub def my_util():
+    print("Utility function!")
+
+# main.rl
+import "utils.rl"
+my_util()
 ```
 
-### Indexing
-Access and assign elements using square brackets.
-```redline
-val first_element: int = my_list[0]
-my_list[1] = 99
+### Projects (`RedConfig.toml`)
+For larger projects, create a `RedConfig.toml` file. This allows you to define your project's entry point and output directory, and build with a simple `redline build` command.
+```toml
+[project]
+name = "MyAwesomeProject"
+entry_point = "src/main.rl"
+output_dir = "bin"
 ```
 
-### Built-in Functions
-*   `len(list)`: Returns the number of elements.
-*   `append(list, value)`: Adds an element to the end.
-*   `sort(list)`: Sorts the list in-place.
-*   `reverse(list)`: Reverses the list in-place.
-*   `find(list, value)`: Returns the index of the value, or -1 if not found.
+## 10. Standard Library
 
-## 8. Classes & Objects
-
-REDLINE supports Object-Oriented Programming (OOP) with classes.
-
-### Defining a Class
-Use the `class` keyword to define a new type.
-
-```redline
-class Person:
-    var name: string = ""
-    var age: int = 0
-
-    # Constructor
-    def init(n: string, a: int):
-        this.name = n
-        this.age = a
-
-    # Method
-    def greet():
-        print("Hello, I am " + this.name)
-```
-
-### Using a Class
-```redline
-var p: Person = Person("Alice", 30)
-p.greet()
-```
-
-*   **`this`**: Use `this` inside methods to access member variables and other methods.
-*   **`init`**: A special method that acts as the constructor.
-
-## 9. Modules
-
-You can split your code into multiple files using modules.
-
-### Importing a Module
-Use the `import` keyword to include another `.rl` file.
-
-```redline
-import "math_utils.rl"
-
-val result: int = add(10, 5)
-```
-
-### Public Visibility
-By default, functions and variables are private to the module. Use the `pub` keyword to make them accessible to other modules.
-
-```redline
-# math_utils.rl
-pub def add(a: int, b: int) -> int:
-    return a + b
-```
-
-## 10. C++ Interoperability
-
-REDLINE is designed to work seamlessly with C++. You can compile REDLINE code into a library and use it in your C++ projects.
-
-### Building a Library
-```bash
-python redline.py lib my_library.rl
-```
-This generates `my_library.hpp` and `my_library.o`.
-
-### Using in C++
-```cpp
-#include "my_library.hpp"
-
-int main() {
-    int result = rl::add(10, 20); // Call REDLINE function
-    return 0;
-}
-```
-
-## 11. Standard Library
+### System (`rl_stdlib.hpp`)
+*   `args: list[string]`: A global list containing command-line arguments.
+*   `len(list)`: Returns the number of elements in a list.
+*   `append(list, value)`: Adds an element to the end of a list.
+*   `sort(list)` / `reverse(list)` / `find(list, value)`
+*   `to_string(value)` / `to_int(value)` / `to_float(value)`
 
 ### I/O (`rl_io.hpp`)
-- `print(value)`: Print to stdout.
-- `input(prompt)`: Read a string from stdin.
+*   `print(value)`: Print to stdout.
+*   `input(prompt)`: Read a string from stdin.
 
-### File I/O (`rl_file.hpp`)
-- `read_file(path) -> string`: Reads the entire content of a file. Throws on error.
-- `write_file(path, content) -> bool`: Writes content to a file. Throws on error.
+### File System (`rl_file.hpp`)
+*   `read_file(path) -> string`: Reads a file's content. Throws on error.
+*   `write_file(path, content)`: Writes content to a file. Throws on error.
+*   `exists(path) -> bool`: Checks if a file or directory exists.
+*   `mkdir(path)`: Creates a new directory.
+*   `remove(path)`: Deletes a file or directory.
+*   `list_dir(path) -> list[string]`: Returns a list of names in a directory.
 
-### String Manipulation (`rl_string.hpp`)
-- `split(string, delimiter) -> list[string]`: Splits a string into a list.
-- `join(list[string], delimiter) -> string`: Joins a list of strings.
-- `contains(string, substring) -> bool`: Checks if a string contains a substring.
+### Time (`rl_time.hpp`)
+*   `time() -> float`: Returns the current Unix timestamp.
+*   `sleep(seconds: float)`: Pauses the program.
 
-### Math (`rl_math.hpp`)
-- Common math functions (`sqrt`, `pow`, `sin`, etc.) and constants (`PI`, `E`).
-
-### Stdlib (`rl_stdlib.hpp`)
-- `len(list)`
-- `append(list, value)`
-- `sort(list)`
-- `reverse(list)`
-- `find(list, value)`
-- `to_int(value)`
-- `to_float(value)`
-- `to_string(value)`
-
-This documentation is a work in progress. If you find any errors or want to improve it, please feel free to open an issue or pull request!
+### Random (`rl_random.hpp`)
+*   `random_int(min: int, max: int) -> int`: Returns a random integer in the specified range.
+*   `random_float() -> float`: Returns a random float between 0.0 and 1.0.
