@@ -1,4 +1,4 @@
-name: Automatic CipherOS Builder
+name: Automatic Redline Builder
 
 on:
   push:
@@ -29,36 +29,41 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pyinstaller
-      
-      - name: Run Compilation Script Windows
+
+      - name: Run Compilation Script (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
           cd startup
           ./compile-startup.bat
 
-      - name: Test Windows
+      - name: Test redline.exe (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          tree
           cd startup
+          if (!(Test-Path "dist/redline.exe")) {
+            Write-Error "redline.exe not found"
+            exit 1
+          }
           ./dist/redline.exe
 
-      - name: Test Ubuntu
-        if: runner.os == 'ubuntu'
+      - name: Test redline (Linux)
+        if: runner.os == 'Linux'
         shell: bash
         run: |
-          tree
           cd startup
+          test -f dist/redline || { echo "redline not found"; exit 1; }
+          chmod +x dist/redline
           ./dist/redline
-      
-      - name: Test macOS
-        if: runner.os == 'macos'
+
+      - name: Test redline (macOS)
+        if: runner.os == 'macOS'
         shell: bash
         run: |
-          tree
           cd startup
+          test -f dist/redline || { echo "redline not found"; exit 1; }
+          chmod +x dist/redline
           ./dist/redline
 
       - name: Upload Build Artifacts
