@@ -26,10 +26,16 @@ Installation is simple. You just need to clone the repository and initialize the
     cd REDLINE
     ```
 
-3.  **Initialize the Compiler:**
+3. **Download the Compiler:**
+    From the releases page download the compiler that works for your operating system and architecture and put it in the root of your repo.
+
+4.  **Initialize the Compiler:**
     Run the `init` command. This will use `cargo` to build the Rust-based compiler core.
     ```bash
-    python redline.py init
+    redline init
+    ```
+    ```pwsh
+    redline.exe init
     ```
 
 Once these steps are complete, you are ready to use the compiler.
@@ -42,13 +48,19 @@ All commands are run using the `redline.py` script from within the repository fo
 If your project has a `RedConfig.toml` file, you can build it by running the `build` command from your project's root directory.
 ```bash
 # Assuming you are inside a project like 'examples/v1.0_tests/MyTestProject'
-python ../../../redline.py build
+../../../redline build
+```
+```pwsh
+../../../redline.exe build
 ```
 
 ### Compiling a Single File
 You can also compile a single file directly by providing its path:
 ```bash
-python redline.py build path/to/my_file.rl
+redline build path/to/my_file.rl
+```
+```pwsh
+redline.exe build path/to/my_file.rl
 ```
 
 ### (Optional) Making `redline` a Global Command
