@@ -41,6 +41,7 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
+          tree
           cd startup
           ./dist/redline.exe
 
@@ -48,6 +49,7 @@ jobs:
         if: runner.os == 'ubuntu'
         shell: bash
         run: |
+          tree
           cd startup
           ./dist/redline
       
@@ -55,6 +57,7 @@ jobs:
         if: runner.os == 'macos'
         shell: bash
         run: |
+          tree
           cd startup
           ./dist/redline
 
