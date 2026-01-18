@@ -22,9 +22,8 @@ This document outlines the future direction of the REDLINE language and compiler
 *   [x] **Random Number Generation**: Add `random_int` and `random_float`.
 *   [x] **Time Library**: Add functions to get the current time and measure duration.
 
-### Tooling Ecosystem (we should add more things to this)
-*   [ ] **Package Manager**: A simple tool to fetch and manage third-party REDLINE libraries.
-*   [ ] **RedConfig Format**: A Project configuration tool to tell REDLINE where to compile, what RL Libraries are installed, and give special instructions.
+### Tooling Ecosystem
+*   [x] **RedConfig Format**: A Project configuration tool to tell REDLINE where to compile, what RL Libraries are installed, and give special instructions.
 
 ### Critical Changes
 *   [ ] **Redline.py to just Redline (idk how)**: Set up pathing for windows and linux/macs (so u can use "redline" everywhere)
@@ -34,3 +33,4 @@ This document outlines the future direction of the REDLINE language and compiler
 *   [ ] **Cross-Platform Support**: Officially support and test on Windows (MSVC) and macOS (Clang).
 *   [ ] **Language Server Protocol (LSP)**: Implement an LSP for better IDE integration (e.g., autocompletion, go-to-definition in VS Code, etc.).
 *   [ ] **Concurrency**: Add support for multi-threading (`spawn`, `mutex`).
+*   [ ] **Package Manager**: A simple tool to fetch and manage third-party REDLINE libraries.
