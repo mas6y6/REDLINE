@@ -1,0 +1,1 @@
+pyinstaller --onefile --console --icon rllogo.ico redline.py
