@@ -49,6 +49,7 @@ ln -s "$INSTALL_DIR/redline.py" "$BIN_DIR/redline"
 echo "Initializing REDLINE compiler core (as user $SUDO_USER)..."
 sudo -u "$SUDO_USER" "$INSTALL_DIR/redline.py" init
 
+
 echo ""
 echo "✅ REDLINE v1.0.1 installed successfully!"
 echo "You can now use the 'redline' command anywhere on your system."
