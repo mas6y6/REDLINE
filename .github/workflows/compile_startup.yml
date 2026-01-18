@@ -37,6 +37,27 @@ jobs:
           cd startup
           ./compile-startup.bat
 
+      - name: Test Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          cd startup
+          ./dist/redline.exe
+
+      - name: Test Ubuntu
+        if: runner.os == 'ubuntu'
+        shell: bash
+        run: |
+          cd startup
+          ./dist/redline
+      
+      - name: Test macOS
+        if: runner.os == 'macos'
+        shell: bash
+        run: |
+          cd startup
+          ./dist/redline
+
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
