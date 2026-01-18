@@ -1,4 +1,4 @@
-# 🟥 REDLINE v1.0.0
+# 🟥 REDLINE v1.0.1
 
 **C++ but Simplified.**
 
@@ -27,7 +27,7 @@ Installation is simple. You just need to clone the repository and initialize the
     ```
 
 3. **Download the Compiler:**
-    From the releases page download the compiler that works for your operating system and architecture and put it in the root of your repo.
+    Grab the compiler that matches your operating system and CPU architecture from the Releases page, then place it in the root directory of cloned repository.
 
 4.  **Initialize the Compiler:**
     Run the `init` command. This will use `cargo` to build the Rust-based compiler core.
