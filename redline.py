@@ -9,7 +9,12 @@ from pathlib import Path
 try:
     import tomllib
 except ImportError:
-    import toml as tomllib
+    # For Python versions before 3.11, use the 'toml' library
+    try:
+        import toml as tomllib
+    except ImportError:
+        print("Error: 'toml' library not found. Please run 'pip install toml'")
+        sys.exit(1)
 
 # --- Constants ---
 VERSION = "1.0.1"
@@ -78,7 +83,7 @@ class Compiler:
             return json.loads(result.stdout)
         except (subprocess.CalledProcessError, json.JSONDecodeError) as e:
             print(f"Error: Failed to parse {source_file.name}.")
-            if hasattr(e, 'stderr'): print(e.stderr, file=sys.stderr)
+            if hasattr(e, 'stderr') and e.stderr: print(e.stderr, file=sys.stderr)
             return None
 
     def compile_module_recursive(self, source_path):
@@ -87,7 +92,7 @@ class Compiler:
             return self.modules[source_path]
 
         print(f"  -> Analyzing module: {source_path.name}")
-        ast = self.get_ast(source_path)
+        ast = self.get_ast(source_file)
         if not ast:
             return None
 
@@ -113,35 +118,51 @@ class Compiler:
             return True
         except subprocess.CalledProcessError as e:
             print(f"Error: Failed to generate {mode.upper()} for {module.name}.")
-            print(e.stderr, file=sys.stderr)
+            if hasattr(e, 'stderr') and e.stderr: print(e.stderr, file=sys.stderr)
             return False
 
 def init_core():
-    """Initializes the REDLINE compiler core. (DEBUG MODE)"""
-    print("Initializing REDLINE Core (Debug Mode)...")
+    """Initializes the REDLINE compiler core."""
+    print("Initializing REDLINE Core...")
     
-    cargo_path = Path.home() / ".cargo" / "bin" / "cargo"
-    
-    print(f"Attempting to use cargo at: {cargo_path}")
-    print(f"Core directory is: {CORE_DIR}")
+    # Create a modified environment that includes the user's cargo path
+    env = os.environ.copy()
+    cargo_home = Path.home() / ".cargo" / "bin"
+    env["PATH"] = str(cargo_home) + os.pathsep + env["PATH"]
 
-    if not cargo_path.exists():
-        print("FATAL: Cargo executable not found at standard path.")
+    cargo_executable = shutil.which("cargo", path=env["PATH"])
+    if not cargo_executable:
+        print("Error: 'cargo' command not found.")
+        print("Please install Rust from https://rustup.rs/ and ensure it's in your PATH.")
         return False
-    
-    if not CORE_DIR.exists():
-        print(f"FATAL: Core directory not found at: {CORE_DIR}")
+        
+    try:
+        result = subprocess.run(
+            [cargo_executable, "build", "--release"],
+            cwd=CORE_DIR, 
+            env=env,
+            check=True,
+            capture_output=True,
+            text=True
+        )
+        print(result.stdout)
+        if result.stderr:
+            print(result.stderr, file=sys.stderr)
+
+        print("REDLINE Core initialized successfully.")
+        return True
+    except FileNotFoundError:
+        print("Error: 'cargo' command not found in the script's execution environment.")
+        print("Please ensure the Rust toolchain is installed and accessible.")
         return False
-
-    # No try/except block. Let it crash and burn to see the traceback.
-    subprocess.run(
-        [str(cargo_path), "build", "--release"],
-        cwd=CORE_DIR,
-        check=True # This will raise an exception on failure
-    )
-
-    print("REDLINE Core initialized successfully.")
-    return True
+    except subprocess.CalledProcessError as e:
+        print("\nError: Cargo build failed.")
+        print(e.stdout)
+        print(e.stderr, file=sys.stderr)
+        return False
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        return False
 
 def find_config(start_path):
     """Searches upward from a path for a RedConfig.toml file."""
